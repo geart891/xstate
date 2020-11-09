@@ -23,7 +23,7 @@ An invocation is defined in a state node's configuration with the `invoke` prope
   - a function that returns a "callback handler"
   - a function that returns an observable
   - a string, which refers to any of the 4 listed options defined in this machine's `options.services`
-  - <Badge text="4.12"> an invoke source object, which contains the source string in `{ type: src }`, as well as any other metadata.
+  - an invoke source object <Badge text="4.12" />, which contains the source string in `{ type: src }`, as well as any other metadata.
 - `id` - the unique identifier for the invoked service
 - `onDone` - (optional) the [transition](./transitions.md) to be taken when:
   - the child machine reaches its [final state](./final.md), or
@@ -128,7 +128,7 @@ The resolved data is placed into a `'done.invoke.<id>'` event, under the `data` 
 
 ### Promise Rejection
 
-If a Promise rejects, the `onError` transition will be taken with a `{ type: 'error.execution' }` event. The error data is available on the event's `data` property:
+If a Promise rejects, the `onError` transition will be taken with a `{ type: 'error.platform' }` event. The error data is available on the event's `data` property:
 
 ```js
 const search = (context, event) => new Promise((resolve, reject) => {
@@ -162,7 +162,7 @@ const searchMachine = Machine({
           actions: assign({
             errorMessage: (context, event) => {
               // event is:
-              // { type: 'error.execution', data: 'No query specified' }
+              // { type: 'error.platform', data: 'No query specified' }
               return event.data;
             }
           })
@@ -651,7 +651,7 @@ const userMachine = Machine({
 });
 ```
 
-<Badge text="4.12" /> The invoke `src` can also be specified as an object that describes the invoke source with its `type` and other related metadata. This can be read from the `services` option in the `meta.src` argument:
+The invoke `src` can also be specified as an object <Badge text="4.12" /> that describes the invoke source with its `type` and other related metadata. This can be read from the `services` option in the `meta.src` argument:
 
 ```js
 const machine = createMachine(
@@ -896,7 +896,7 @@ The `invoke` property is synonymous to the SCXML `<invoke>` element:
 <state id="loading">
   <invoke id="someID" src="someSource" autoforward />
   <transition event="done.invoke.someID" target="success" />
-  <transition event="error.execution" cond="_event.src === 'someID'" target="failure" />
+  <transition event="error.platform" cond="_event.src === 'someID'" target="failure" />
 </state>
 ```
 

@@ -1,5 +1,78 @@
 # xstate
 
+## 4.14.0
+
+### Minor Changes
+
+- [`119db8fb`](https://github.com/davidkpiano/xstate/commit/119db8fbccd08f899e1275a502d8c4c51b5a130e) [#1577](https://github.com/davidkpiano/xstate/pull/1577) Thanks [@davidkpiano](https://github.com/davidkpiano)! - Expressions can now be used in the `stop()` action creator:
+
+  ```js
+  // ...
+  actions: stop((context) => context.someActor);
+  ```
+
+### Patch Changes
+
+- [`8c78e120`](https://github.com/davidkpiano/xstate/commit/8c78e1205a729d933e30db01cd4260d82352a9be) [#1570](https://github.com/davidkpiano/xstate/pull/1570) Thanks [@davidkpiano](https://github.com/davidkpiano)! - The return type of `spawn(machine)` will now be `Actor<State<TContext, TEvent>, TEvent>`, which is a supertype of `Interpreter<...>`.
+
+* [`602687c2`](https://github.com/davidkpiano/xstate/commit/602687c235c56cca552c2d5a9d78adf224f522d8) [#1566](https://github.com/davidkpiano/xstate/pull/1566) Thanks [@davidkpiano](https://github.com/davidkpiano)! - Exit actions will now be properly called when an invoked machine reaches its final state. See [#1109](https://github.com/davidkpiano/xstate/issues/1109) for more details.
+
+- [`6e44d02a`](https://github.com/davidkpiano/xstate/commit/6e44d02ad03af4041046120dd6c975e3b5b3772a) [#1553](https://github.com/davidkpiano/xstate/pull/1553) Thanks [@davidkpiano](https://github.com/davidkpiano)! - The `state.children` property now properly shows all spawned and invoked actors. See [#795](https://github.com/davidkpiano/xstate/issues/795) for more details.
+
+* [`72b0880e`](https://github.com/davidkpiano/xstate/commit/72b0880e6444ae009adca72088872bb5c0760ce3) [#1504](https://github.com/davidkpiano/xstate/pull/1504) Thanks [@Andarist](https://github.com/Andarist)! - Added `status` property on the `Interpreter` - this can be used to differentiate not started, running and stopped interpreters. This property is best compared to values on the new `InterpreterStatus` export.
+
+## 4.13.0
+
+### Minor Changes
+
+- [`f51614df`](https://github.com/davidkpiano/xstate/commit/f51614dff760cfe4511c0bc7cca3d022157c104c) [#1409](https://github.com/davidkpiano/xstate/pull/1409) Thanks [@jirutka](https://github.com/jirutka)! - Fix type `ExtractStateValue` so that it generates a type actually describing a `State.value`
+
+### Patch Changes
+
+- [`b1684ead`](https://github.com/davidkpiano/xstate/commit/b1684eadb1f859db5c733b8d403afc825c294948) [#1402](https://github.com/davidkpiano/xstate/pull/1402) Thanks [@Andarist](https://github.com/Andarist)! - Improved TypeScript type-checking performance a little bit by using distributive conditional type within `TransitionsConfigArray` declarations instead of a mapped type. Kudos to [@amcasey](https://github.com/amcasey), some discussion around this can be found [here](https://github.com/microsoft/TypeScript/issues/39826#issuecomment-675790689)
+
+* [`ad3026d4`](https://github.com/davidkpiano/xstate/commit/ad3026d4309e9a1c719e09fd8c15cdfefce22055) [#1407](https://github.com/davidkpiano/xstate/pull/1407) Thanks [@tomenden](https://github.com/tomenden)! - Fixed an issue with not being able to run XState in Web Workers due to assuming that `window` or `global` object is available in the executing environment, but none of those are actually available in the Web Workers context.
+
+- [`4e949ec8`](https://github.com/davidkpiano/xstate/commit/4e949ec856349062352562c825beb0654e528f81) [#1401](https://github.com/davidkpiano/xstate/pull/1401) Thanks [@Andarist](https://github.com/Andarist)! - Fixed an issue with spawned actors being spawned multiple times when they got spawned in an initial state of a child machine that is invoked in the initial state of a parent machine.
+
+  <details>
+  <summary>
+  Illustrating example for curious readers.
+  </summary>
+
+  ```js
+  const child = createMachine({
+    initial: 'bar',
+    context: {},
+    states: {
+      bar: {
+        entry: assign({
+          promise: () => {
+            return spawn(() => Promise.resolve('answer'));
+          }
+        })
+      }
+    }
+  });
+
+  const parent = createMachine({
+    initial: 'foo',
+    states: {
+      foo: {
+        invoke: {
+          src: child,
+          onDone: 'end'
+        }
+      },
+      end: { type: 'final' }
+    }
+  });
+
+  interpret(parent).start();
+  ```
+
+  </details>
+
 ## 4.12.0
 
 ### Minor Changes
@@ -173,10 +246,10 @@
   ```js
   entry: [
     choose([
-      { cond: ctx => ctx > 100, actions: raise('TOGGLE') },
+      { cond: (ctx) => ctx > 100, actions: raise('TOGGLE') },
       {
         cond: 'hasMagicBottle',
-        actions: [assign(ctx => ({ counter: ctx.counter + 1 }))]
+        actions: [assign((ctx) => ({ counter: ctx.counter + 1 }))]
       },
       { actions: ['fallbackAction'] }
     ])
