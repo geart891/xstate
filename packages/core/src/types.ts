@@ -92,16 +92,25 @@ export interface StateValueMap {
  */
 export type StateValue = string | StateValueMap;
 
+type KeysWithStates<
+  TStates extends Record<string, StateSchema> | undefined
+> = TStates extends object
+  ? {
+      [K in keyof TStates]-?: TStates[K] extends { states: object } ? K : never;
+    }[keyof TStates]
+  : never;
+
 export type ExtractStateValue<
-  TS extends StateSchema<any>,
-  TSS = TS['states']
-> = TSS extends undefined
-  ? never
-  : {
-      [K in keyof TSS]?:
-        | (TSS[K] extends { states: any } ? keyof TSS[K]['states'] : never)
-        | ExtractStateValue<TSS[K]>;
-    };
+  TSchema extends Required<Pick<StateSchema<any>, 'states'>>
+> =
+  | keyof TSchema['states']
+  | (KeysWithStates<TSchema['states']> extends never
+      ? never
+      : {
+          [K in KeysWithStates<TSchema['states']>]?: ExtractStateValue<
+            TSchema['states'][K]
+          >;
+        });
 
 export interface HistoryValue {
   states: Record<string, HistoryValue | undefined>;
@@ -189,6 +198,35 @@ export interface ActivityDefinition<TContext, TEvent extends EventObject>
 }
 
 export type Sender<TEvent extends EventObject> = (event: Event<TEvent>) => void;
+
+type ExcludeType<A> = { [K in Exclude<keyof A, 'type'>]: A[K] };
+
+type ExtractExtraParameters<A, T> = A extends { type: T }
+  ? ExcludeType<A>
+  : never;
+
+type ExtractSimple<A> = A extends any
+  ? {} extends ExcludeType<A>
+    ? A
+    : never
+  : never;
+
+type NeverIfEmpty<T> = {} extends T ? never : T;
+
+export interface PayloadSender<TEvent extends EventObject> {
+  /**
+   * Send an event object or just the event type, if the event has no other payload
+   */
+  (event: TEvent | ExtractSimple<TEvent>['type']): void;
+  /**
+   * Send an event type and its payload
+   */
+  <K extends TEvent['type']>(
+    eventType: K,
+    payload: NeverIfEmpty<ExtractExtraParameters<TEvent, K>>
+  ): void;
+}
+
 export type Receiver<TEvent extends EventObject> = (
   listener: (event: TEvent) => void
 ) => void;
@@ -346,14 +384,10 @@ type TransitionsConfigMap<TContext, TEvent extends EventObject> = {
 };
 
 type TransitionsConfigArray<TContext, TEvent extends EventObject> = Array<
-  | {
-      [K in TEvent['type']]: TransitionConfig<
-        TContext,
-        TEvent extends { type: K } ? TEvent : never
-      > & {
-        event: K;
-      };
-    }[TEvent['type']]
+  // distribute the union
+  | (TEvent extends EventObject
+      ? TransitionConfig<TContext, TEvent> & { event: TEvent['type'] }
+      : never)
   | (TransitionConfig<TContext, TEvent> & { event: '' })
   | (TransitionConfig<TContext, TEvent> & { event: '*' })
 >;
@@ -608,10 +642,10 @@ export type DelayFunctionMap<TContext, TEvent extends EventObject> = Record<
   DelayConfig<TContext, TEvent>
 >;
 
-export type ServiceConfig<TContext, TEvent extends EventObject = AnyEventObject> =
-  | string
-  | StateMachine<any, any, any>
-  | InvokeCreator<TContext, TEvent>;
+export type ServiceConfig<
+  TContext,
+  TEvent extends EventObject = AnyEventObject
+> = string | StateMachine<any, any, any> | InvokeCreator<TContext, TEvent>;
 
 export type DelayConfig<TContext, TEvent extends EventObject> =
   | number
@@ -791,7 +825,7 @@ export interface NullEvent {
 export interface ActivityActionObject<TContext, TEvent extends EventObject>
   extends ActionObject<TContext, TEvent> {
   type: ActionTypes.Start | ActionTypes.Stop;
-  activity: ActivityDefinition<TContext, TEvent>;
+  activity: ActivityDefinition<TContext, TEvent> | undefined;
   exec: ActionFunction<TContext, TEvent> | undefined;
 }
 
@@ -849,6 +883,20 @@ export interface SendActionObject<
   event: TSentEvent;
   delay?: number;
   id: string | number;
+}
+
+export interface StopAction<TContext, TEvent extends EventObject>
+  extends ActionObject<TContext, TEvent> {
+  type: ActionTypes.Stop;
+  activity:
+    | string
+    | { id: string }
+    | Expr<TContext, TEvent, string | { id: string }>;
+}
+
+export interface StopActionObject {
+  type: ActionTypes.Stop;
+  activity: { id: string };
 }
 
 export type Expr<TContext, TEvent extends EventObject, T> = (

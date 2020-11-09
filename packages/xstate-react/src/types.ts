@@ -40,9 +40,39 @@ export interface ActorRef<TEvent extends EventObject, TEmitted = any>
 // Compatibility with V4
 export interface ActorRefLike<TEvent extends EventObject, TEmitted = any>
   extends Subscribable<TEmitted> {
-  name?: string;
-  id?: string;
   send: Sender<TEvent>;
   stop?: () => void;
-  state?: TEmitted;
+  [key: string]: any;
+}
+
+export type MaybeLazy<T> = T | (() => T);
+
+// TODO: remove these types (up to PayloadSender) when
+// @xstate/react depends on xstate v5.0 (use PayloadSender from core instead)
+type ExcludeType<A> = { [K in Exclude<keyof A, 'type'>]: A[K] };
+
+type ExtractExtraParameters<A, T> = A extends { type: T }
+  ? ExcludeType<A>
+  : never;
+
+type ExtractSimple<A> = A extends any
+  ? {} extends ExcludeType<A>
+    ? A
+    : never
+  : never;
+
+type NeverIfEmpty<T> = {} extends T ? never : T;
+
+export interface PayloadSender<TEvent extends EventObject> {
+  /**
+   * Send an event object or just the event type, if the event has no other payload
+   */
+  (event: TEvent | ExtractSimple<TEvent>['type']): void;
+  /**
+   * Send an event type and its payload
+   */
+  <K extends TEvent['type']>(
+    eventType: K,
+    payload: NeverIfEmpty<ExtractExtraParameters<TEvent, K>>
+  ): void;
 }
