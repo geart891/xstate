@@ -1,5 +1,54 @@
 # Changelog
 
+## 1.3.1
+
+### Patch Changes
+
+- [`b076b253`](https://github.com/davidkpiano/xstate/commit/b076b25364224874f62e8065892be40dfbb28030) [#1947](https://github.com/davidkpiano/xstate/pull/1947) Thanks [@lukekarrys](https://github.com/lukekarrys)! - Fix typing of the service returned from the fsm useMachine hook by passing it Typestate
+
+* [`9b5dc784`](https://github.com/davidkpiano/xstate/commit/9b5dc7843c44f50bcca0ffccb843b3d50cef6ddc) [#1950](https://github.com/davidkpiano/xstate/pull/1950) Thanks [@Andarist](https://github.com/Andarist)! - Fixed an issue with `toObserver` being internally imported from `xstate/lib/utils` which has broken UMD build and the declared peer dep contract.
+
+## 1.3.0
+
+### Minor Changes
+
+- [`577ae023`](https://github.com/davidkpiano/xstate/commit/577ae02384926b49e876011c4393f212b49066f8) [#1915](https://github.com/davidkpiano/xstate/pull/1915) Thanks [@davidkpiano](https://github.com/davidkpiano)! - New hook: `useInterpret(machine)`, which is a low-level hook that interprets the `machine` and returns the `service`:
+
+  ```js
+  import { useInterpret } from '@xstate/react';
+  import { someMachine } from '../path/to/someMachine';
+
+  const App = () => {
+    const service = useInterpret(someMachine);
+
+    // ...
+  };
+  ```
+
+* [`577ae023`](https://github.com/davidkpiano/xstate/commit/577ae02384926b49e876011c4393f212b49066f8) [#1915](https://github.com/davidkpiano/xstate/pull/1915) Thanks [@davidkpiano](https://github.com/davidkpiano)! - New hook: `useSelector(actor, selector)`, which subscribes to `actor` and returns the selected state derived from `selector(snapshot)`:
+
+  ```js
+  import { useSelector } from '@xstate/react';
+
+  const App = ({ someActor }) => {
+    const count = useSelector(someActor, state => state.context.count);
+
+    // ...
+  };
+  ```
+
+## 1.2.2
+
+### Patch Changes
+
+- [`4b31cefb`](https://github.com/davidkpiano/xstate/commit/4b31cefb3d3497e5515314046639df7e27dbe9e8) [#1780](https://github.com/davidkpiano/xstate/pull/1780) Thanks [@Andarist](https://github.com/Andarist)! - Fixed an issue with some external packages not being bundled correctly into the UMD bundles.
+
+## 1.2.1
+
+### Patch Changes
+
+- [`a16a5f2f`](https://github.com/davidkpiano/xstate/commit/a16a5f2ff5ba9d4d7834ec3ca2d0adecf5d6a870) [#1756](https://github.com/davidkpiano/xstate/pull/1756) Thanks [@dimitardanailov](https://github.com/dimitardanailov)! - Fixed an issue with `process` references not being removed correctly from the UMD bundles.
+
 ## 1.2.0
 
 ### Minor Changes

@@ -27,7 +27,8 @@ import {
   Observer,
   Spawnable,
   Typestate,
-  AnyEventObject
+  AnyEventObject,
+  AnyInterpreter
 } from './types';
 import { State, bindActionToState, isState } from './State';
 import * as actionTypes from './actionTypes';
@@ -56,7 +57,7 @@ import { Scheduler } from './scheduler';
 import { Actor, isSpawnedActor, createDeferredActor } from './Actor';
 import { isInFinalState } from './stateUtils';
 import { registry } from './registry';
-import { registerService } from './devTools';
+import { getGlobal, registerService } from './devTools';
 import * as serviceScope from './serviceScope';
 import {
   ActorRef,
@@ -503,6 +504,11 @@ export class Interpreter<
       this.doneListeners.delete(listener);
     }
 
+    if (!this.initialized) {
+      // Interpreter already stopped; do nothing
+      return this;
+    }
+
     this.state.configuration.forEach((stateNode) => {
       for (const action of stateNode.definition.exit) {
         this.exec(action, this.state);
@@ -685,7 +691,7 @@ export class Interpreter<
 
     if ('machine' in target) {
       // Send SCXML events to machines
-      (target as Interpreter<any, any, any>).send({
+      (target as AnyInterpreter).send({
         ...event,
         name:
           event.name === actionTypes.error ? `${error(this.id)}` : event.name,
@@ -1095,7 +1101,7 @@ export class Interpreter<
       if (canceled) {
         return;
       }
-      this.send(e);
+      this.send(toSCXMLEvent(e, { origin: id }));
     };
 
     let callbackStop;
@@ -1216,13 +1222,14 @@ export class Interpreter<
   }
 
   private attachDev(): void {
-    if (this.options.devTools && typeof window !== 'undefined') {
-      if ((window as any).__REDUX_DEVTOOLS_EXTENSION__) {
+    const global = getGlobal();
+    if (this.options.devTools && global) {
+      if ((global as any).__REDUX_DEVTOOLS_EXTENSION__) {
         const devToolsOptions =
           typeof this.options.devTools === 'object'
             ? this.options.devTools
             : undefined;
-        this.devTools = (window as any).__REDUX_DEVTOOLS_EXTENSION__.connect(
+        this.devTools = (global as any).__REDUX_DEVTOOLS_EXTENSION__.connect(
           {
             name: this.id,
             autoPause: true,
