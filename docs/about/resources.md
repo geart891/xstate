@@ -195,6 +195,9 @@ There is also a follow-up course: [State Modeling with React and XState](https:/
 - [▶️ XState and State Machines in Vue](https://tallpad.com/series/xstate-misc/episode/1)
 - [Github - XState with React and Angular in Nx Workspace](https://github.com/nartc/nx-state-machine-todos-mvc) by [Chau Tran](https://nartc.me)
 - [Boost your React application's performance by XState](https://dev.to/alirezavalizade/boost-your-react-application-s-performance-by-xstate-42p8) by [Alireza Valizade](https://dev.to/alirezavalizade)
+<<<<<<< HEAD
 - [Getting Started with XState, React, and Typescript | Part 1](https://www.youtube.com/watch?v=po1YRAk7irY) by [Modus Create](https://www.youtube.com/channel/UCsKwL0-e2eHRNa6Ne99AESw)
 - [Frontend is Rocket Science – Managing state in any JavaScript Application](https://blog.oddeven.ch/blog/frontend-is-rocket-science-managing-state-in-any-javascript-application/) by [Aleksej Dix](https://twitter.com/aleksejdix)
 - [▶️ Use State Machines to Build a Queue for Custom Twitch Overlays — Learn With Jason](https://www.youtube.com/watch?v=UzA5Mvk587M) by [Jason Lengstorf](https://www.youtube.com/channel/UCnty0z0pNRDgnuoirYXnC5A)
+=======
+>>>>>>> 9c9d0e93c30add47c25be6328d3a9e56fe179287
