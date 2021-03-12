@@ -1,5 +1,84 @@
 # xstate
 
+## 4.16.2
+
+### Patch Changes
+
+- [`4194ffe8`](https://github.com/davidkpiano/xstate/commit/4194ffe84cfe7910e2c183701e36bc5cac5c9bcc) [#1710](https://github.com/davidkpiano/xstate/pull/1710) Thanks [@davidkpiano](https://github.com/davidkpiano)! - Stopping an already stopped interpreter will no longer crash. See [#1697](https://github.com/davidkpiano/xstate/issues/1697) for details.
+
+## 4.16.1
+
+### Patch Changes
+
+- [`af6b7c70`](https://github.com/davidkpiano/xstate/commit/af6b7c70015db29d84f79dfd29ea0dc221b8f3e6) [#1865](https://github.com/davidkpiano/xstate/pull/1865) Thanks [@Andarist](https://github.com/Andarist)! - Improved `.matches(value)` inference for typestates containing union types as values.
+
+## 4.16.0
+
+### Minor Changes
+
+- [`d2e328f8`](https://github.com/davidkpiano/xstate/commit/d2e328f8efad7e8d3500d39976d1153a26e835a3) [#1439](https://github.com/davidkpiano/xstate/pull/1439) Thanks [@davidkpiano](https://github.com/davidkpiano)! - An opt-in `createModel()` helper has been introduced to make it easier to work with typed `context` and events.
+
+  - `createModel(initialContext)` creates a `model` object
+  - `model.initialContext` returns the `initialContext`
+  - `model.assign(assigner, event?)` creates an `assign` action that is properly scoped to the `event` in TypeScript
+
+  See https://github.com/davidkpiano/xstate/pull/1439 for more details.
+
+  ```js
+  import { createMachine } from 'xstate';
+  import { createModel } from 'xstate/lib/model'; // opt-in, not part of main build
+
+  interface UserContext {
+    name: string;
+    age: number;
+  }
+
+  type UserEvents =
+    | { type: 'updateName'; value: string }
+    | { type: 'updateAge'; value: number }
+
+  const userModel = createModel<UserContext, UserEvents>({
+    name: 'David',
+    age: 30
+  });
+
+  const assignName = userModel.assign({
+    name: (_, e) => e.value // correctly typed to `string`
+  }, 'updateName'); // restrict to 'updateName' event
+
+  const machine = createMachine<UserContext, UserEvents>({
+    context: userModel.context,
+    initial: 'active',
+    states: {
+      active: {
+        on: {
+          updateName: {
+            actions: assignName
+          }
+        }
+      }
+    }
+  });
+  ```
+
+## 4.15.4
+
+### Patch Changes
+
+- [`0cb8df9b`](https://github.com/davidkpiano/xstate/commit/0cb8df9b6c8cd01ada82afe967bf1015e24e75d9) [#1816](https://github.com/davidkpiano/xstate/pull/1816) Thanks [@Andarist](https://github.com/Andarist)! - `machine.resolveState(state)` calls should resolve to the correct value of `.done` property now.
+
+## 4.15.3
+
+### Patch Changes
+
+- [`63ba888e`](https://github.com/davidkpiano/xstate/commit/63ba888e19bd2b72f9aad2c9cd36cde297e0ffe5) [#1770](https://github.com/davidkpiano/xstate/pull/1770) Thanks [@davidkpiano](https://github.com/davidkpiano)! - Instead of referencing `window` directly, XState now internally calls a `getGlobal()` function that will resolve to the proper `globalThis` value in all environments. This affects the dev tools code only.
+
+## 4.15.2
+
+### Patch Changes
+
+- [`497c543d`](https://github.com/davidkpiano/xstate/commit/497c543d2980ea1a277b30b340a7bcd3dd0b3cb6) [#1766](https://github.com/davidkpiano/xstate/pull/1766) Thanks [@Andarist](https://github.com/Andarist)! - Fixed an issue with events received from callback actors not having the appropriate `_event.origin` set.
+
 ## 4.15.1
 
 ### Patch Changes
