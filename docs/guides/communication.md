@@ -423,7 +423,7 @@ data: (context, event) => ({
 
 ### Done Data
 
-When a child machine reaches its top-level [final state](./final.md), it can send data in the "done" event (e.g., `{ type: 'done.invoke.someId', data: ... })`). This "done data" is specified on the final state's `data` property:
+When a child machine reaches its top-level [final state](./final.md), it can send data in the "done" event (e.g., `{ type: 'done.invoke.someId', data: ... }`). This "done data" is specified on the final state's `data` property:
 
 ```js
 const secretMachine = Machine({
@@ -883,7 +883,7 @@ The `invoke` property is synonymous to the SCXML `<invoke>` element:
     invoke: {
       src: 'someSource',
       id: 'someID',
-      autoForward: true, // currently for machines only!  
+      autoForward: true, // currently for machines only!
       onDone: 'success',
       onError: 'failure'
     }
