@@ -212,11 +212,7 @@ _Since 1.3.0_
 import { useSelector } from '@xstate/react';
 
 // tip: optimize selectors by defining them externally when possible
-<<<<<<< HEAD
 const selectCount = (state) => state.context.count;
-=======
-const selectCount = (state) => state.count;
->>>>>>> 9c9d0e93c30add47c25be6328d3a9e56fe179287
 
 const App = ({ service }) => {
   const count = useSelector(service, selectCount);
@@ -230,11 +226,7 @@ With `compare` function:
 ```js
 // ...
 
-<<<<<<< HEAD
 const selectUser = (state) => state.context.user;
-=======
-const selectUser = (state) => state.user;
->>>>>>> 9c9d0e93c30add47c25be6328d3a9e56fe179287
 const compareUser = (prevUser, nextUser) => prevUser.id === nextUser.id;
 
 const App = ({ service }) => {
@@ -250,11 +242,7 @@ With `useInterpret(...)`:
 import { useInterpret, useSelector } from '@xstate/react';
 import { someMachine } from '../path/to/someMachine';
 
-<<<<<<< HEAD
 const selectCount = (state) => state.context.count;
-=======
-const selectCount = (state) => state.count;
->>>>>>> 9c9d0e93c30add47c25be6328d3a9e56fe179287
 
 const App = ({ service }) => {
   const service = useInterpret(someMachine);
